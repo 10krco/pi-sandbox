@@ -2,6 +2,24 @@
 
 Sandbox for [pi](https://pi.dev/).
 
+## 10krco Foundry experiment (Linux)
+
+`foundry-runner.mjs` is a **separate, host-invoked G0 candidate**, not the
+upstream Pi extension's default. It uses pinned `@carderne/sandbox-runtime@0.0.72`,
+a canonical trusted `--workspace`, a fixed deny-all network policy and a hidden
+host root with a read-only Nix tooling allowlist. Only the chosen workspace is
+writable; `protected/` is hidden and read-only. Its worker inherits no provider
+credentials or arbitrary host environment variables. A trusted controller must
+choose the workspace and command; do not offer these arguments to an untrusted
+agent as unrestricted host tool input. Run the separate Foundry external
+observer against this entry point before treating it as safe. This initial
+candidate is NixOS-specific; it is **not** evidence that the Pi extension or
+pi-workflows host shell is isolated. The normal `/sandbox-disable`, grant
+prompts and `--no-sandbox` behavior below are still present and must not be
+used for Foundry autonomous worker commands. Never install or activate this
+fork as a claimed autonomous boundary until full end-to-end routing is proven.
+
+
 Sandboxes pi like this:
 - read/write/edit: direct control using allow/deny lists
 - bash: uses [`@carderne/sandbox-runtime`](https://www.npmjs.com/package/@carderne/sandbox-runtime) to control network and file system access

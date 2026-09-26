@@ -13,7 +13,7 @@ importers:
   .:
     dependencies:
       '@carderne/sandbox-runtime':
-        specifier: ^0.0.72
+        specifier: 0.0.72
         version: 0.0.72
     devDependencies:
       '@earendil-works/pi-coding-agent':
