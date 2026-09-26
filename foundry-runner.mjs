@@ -31,11 +31,15 @@ async function main() {
     // Explicitly ignore all user/project sandbox.json grants and toggles.
     // This policy is host-authored and must be bound to the chosen workspace.
     const seccompDir = fileURLToPath(new URL('../vendor/seccomp', import.meta.resolve('@carderne/sandbox-runtime')));
+    // Never let project commands rewrite code that trusted Pi/workflow/CI
+    // processes will later load or the host's Git control plane. A developer
+    // may still edit these paths outside the untrusted worker boundary.
+    const trustedProjectPaths = ['protected', '.pi', '.git', '.github'].map(name => join(input, name));
     await manager.initialize({
       network: { offline: true, allowedDomains: [], deniedDomains: ['*'], strictAllowlist: true },
       filesystem: {
         includeDefaultWritePaths: false,
-        denyRead: ['/', join(input, 'protected')],
+        denyRead: ['/', ...trustedProjectPaths],
         // Linux bwrap receives a hidden host root; only code/tooling and the
         // exact project are re-bound. No access to host HOME, /tmp siblings,
         // /var or service sockets. /nix/store is read-only NixOS tooling.
@@ -43,7 +47,7 @@ async function main() {
                     '/nix/store', '/run/current-system/sw', '/etc/ssl',
                     '/etc/ld.so.cache'],
         allowWrite: [input],
-        denyWrite: [join(input, 'protected')],
+        denyWrite: trustedProjectPaths,
       },
       enableWeakerNestedSandbox: false,
       allowAllUnixSockets: false,

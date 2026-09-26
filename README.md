@@ -10,8 +10,10 @@ upstream Pi extension's default. It uses an exact-commit 10krco fork of
 write grants **disabled**, a canonical trusted `--workspace`, and a fixed
 Linux offline network namespace that starts no host proxy/bridge. Its hidden
 host root rebinds only an explicit read-only Nix tooling allowlist. Only the
-chosen workspace is writable; `protected/` is hidden and read-only. Its worker inherits no provider
-credentials or arbitrary host environment variables. A trusted controller must
+chosen workspace is writable except `protected/`, `.pi/`, `.git/` and
+`.github/`, which are hidden and read-only to stop untrusted commands from
+rewriting host-trusted workflow definitions, repository control or CI. Its
+worker inherits no provider credentials or arbitrary host environment variables. A trusted controller must
 choose the workspace and command; do not offer these arguments to an untrusted
 agent as unrestricted host tool input. Run the separate Foundry external
 observer against this entry point before treating it as safe. This initial
