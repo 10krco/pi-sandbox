@@ -1,6 +1,6 @@
 # pi-sandbox
 
-Sandbox for [pi](https://pi.dev/).
+Sandbox for [pi](https://pi.dev/). The 10krco fork's package peer range covers the upstream Pi 0.80 line and the separately tested Pi 0.87 line; the host-invoked `foundry-runner.mjs` remains distinct from this interactive Pi extension.
 
 ## 10krco Foundry experiment (Linux)
 

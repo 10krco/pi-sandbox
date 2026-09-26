@@ -42,7 +42,7 @@
     "@carderne/sandbox-runtime": "git+https://github.com/10krco/sandbox-runtime.git#08f8c82baedb4a6e3f273dc50a0a864ebbccbeec"
   },
   "peerDependencies": {
-    "@earendil-works/pi-coding-agent": "^0.80.0",
+    "@earendil-works/pi-coding-agent": "^0.80.0 || ^0.87.0",
     "@earendil-works/pi-tui": "*"
   },
   "peerDependenciesMeta": {
@@ -51,8 +51,8 @@
     }
   },
   "devDependencies": {
-    "@earendil-works/pi-coding-agent": "^0.80.0",
-    "@earendil-works/pi-tui": "^0.80.0",
+    "@earendil-works/pi-coding-agent": "^0.87.0",
+    "@earendil-works/pi-tui": "^0.87.0",
     "@types/node": "^24",
     "oxfmt": "^0.47.0",
     "oxlint": "^1.62.0",
