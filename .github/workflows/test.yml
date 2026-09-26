@@ -5,9 +5,10 @@ on:
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
+  workflow_dispatch:
 
 concurrency:
-  group: pr-${{ github.event.number }}
+  group: test-${{ github.event_name }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -25,3 +26,26 @@ jobs:
       - run: pnpm run ci:lint
       - run: pnpm run ci:check
       - run: pnpm run ci:test
+
+  build:
+    name: build
+    needs: [test-ts]
+    if: ${{ always() }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions: {}
+    steps:
+      - name: Require all prerequisite jobs to succeed
+        env:
+          PREREQUISITES: ${{ toJSON(needs) }}
+        run: |
+          python3 - <<'PY'
+          import json, os, sys
+          jobs = json.loads(os.environ['PREREQUISITES'])
+          failed = {name: job['result'] for name, job in jobs.items()
+                    if job['result'] != 'success'}
+          if not jobs or failed:
+              print(f'Required prerequisites did not succeed: {failed or "none configured"}')
+              sys.exit(1)
+          print('All required CI prerequisites succeeded')
+          PY

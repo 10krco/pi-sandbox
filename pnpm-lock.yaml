@@ -13,8 +13,8 @@ importers:
   .:
     dependencies:
       '@carderne/sandbox-runtime':
-        specifier: ^0.0.72
-        version: 0.0.72
+        specifier: git+https://github.com/10krco/sandbox-runtime.git#08f8c82baedb4a6e3f273dc50a0a864ebbccbeec
+        version: https://codeload.github.com/10krco/sandbox-runtime/tar.gz/08f8c82baedb4a6e3f273dc50a0a864ebbccbeec
     devDependencies:
       '@earendil-works/pi-coding-agent':
         specifier: ^0.80.0
@@ -150,8 +150,9 @@ packages:
     resolution: {integrity: sha512-Nq8OhGWiZIZGV6hLHoyAKLLcJihP/xFeBMGJoUrxTX2psI8dCifzLhZISFb+VWS3wFMRDmCGw5R+dOySCqPLhw==}
     engines: {node: '>=6.9.0'}
 
-  '@carderne/sandbox-runtime@0.0.72':
-    resolution: {integrity: sha512-7GI5hDQ7vUHdkVsHHZ76kbVTzy2Wt0twcQhUDVpGG5mgn5vENpWXImU8kKFf+YifDHn7nSoltCqa1RAqZZbVtw==}
+  '@carderne/sandbox-runtime@https://codeload.github.com/10krco/sandbox-runtime/tar.gz/08f8c82baedb4a6e3f273dc50a0a864ebbccbeec':
+    resolution: {gitHosted: true, integrity: sha512-lp0QBcgatqPFP/Gz1xQPpULqB1kl1Qi8wTcdzcJGSlwV3xeg1uLl8zNlAkQEsURV/JluJQ1Ls8QlsH1E1W+Jbw==, tarball: https://codeload.github.com/10krco/sandbox-runtime/tar.gz/08f8c82baedb4a6e3f273dc50a0a864ebbccbeec}
+    version: 0.0.72-foundry.1
     engines: {node: '>=20.11.0'}
     hasBin: true
 
@@ -1294,7 +1295,7 @@ snapshots:
 
   '@babel/runtime@7.29.7': {}
 
-  '@carderne/sandbox-runtime@0.0.72':
+  '@carderne/sandbox-runtime@https://codeload.github.com/10krco/sandbox-runtime/tar.gz/08f8c82baedb4a6e3f273dc50a0a864ebbccbeec':
     dependencies:
       '@pondwader/socks5-server': 1.0.10
       commander: 12.1.0
