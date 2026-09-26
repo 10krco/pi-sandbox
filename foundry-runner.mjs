@@ -52,18 +52,17 @@ async function main() {
     const sandboxed = await manager.wrapWithSandbox(command, shell);
     wrapped = true;
     // Do not inherit provider tokens, agent env, proxy settings or user's HOME.
-    child = spawn(shell, ['-c', sandboxed], {
+    // Replace the host shell with bwrap so its --die-with-parent watches
+    // this runner directly. The worker shares the runner's process group;
+    // the trusted caller can stop both with one group signal.
+    child = spawn(shell, ['-c', `exec ${sandboxed}`], {
       cwd: input,
       env: { PATH: process.env.PATH ?? '/usr/bin:/bin', HOME: '/nonexistent',
              TMPDIR: input, LC_ALL: 'C', TERM: 'dumb' },
-      detached: true,
+      detached: false,
       stdio: 'inherit',
     });
-    const kill = () => {
-      if (child?.pid) {
-        try { process.kill(-child.pid, 'SIGKILL'); } catch { child.kill('SIGKILL'); }
-      }
-    };
+    const kill = () => child?.kill('SIGKILL');
     const timeout = setTimeout(kill, 8000);
     process.on('SIGTERM', kill);
     process.on('SIGINT', kill);
@@ -80,9 +79,7 @@ async function main() {
   } finally {
     // An interrupted child may leave descendants; never report a clean exit
     // based on a killed supervisor without checking the external effects.
-    if (child?.pid) {
-      try { process.kill(-child.pid, 'SIGKILL'); } catch { /* already settled */ }
-    }
+    child?.kill('SIGKILL');
     if (wrapped) manager.cleanupAfterCommand();
     await manager.reset();
   }
