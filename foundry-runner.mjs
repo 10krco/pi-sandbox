@@ -32,7 +32,7 @@ async function main() {
     // This policy is host-authored and must be bound to the chosen workspace.
     const seccompDir = fileURLToPath(new URL('../vendor/seccomp', import.meta.resolve('@carderne/sandbox-runtime')));
     await manager.initialize({
-      network: { allowedDomains: [], deniedDomains: ['*'], strictAllowlist: true },
+      network: { offline: true, allowedDomains: [], deniedDomains: ['*'], strictAllowlist: true },
       filesystem: {
         includeDefaultWritePaths: false,
         denyRead: ['/', join(input, 'protected')],

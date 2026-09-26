@@ -7,9 +7,10 @@ Sandbox for [pi](https://pi.dev/).
 `foundry-runner.mjs` is a **separate, host-invoked G0 candidate**, not the
 upstream Pi extension's default. It uses an exact-commit 10krco fork of
 `@carderne/sandbox-runtime@0.0.72-foundry.1` with its upstream convenience
-write grants **disabled**, a canonical trusted `--workspace`, a fixed deny-all
-network policy and a hidden host root with a read-only Nix tooling allowlist. Only the chosen workspace is
-writable; `protected/` is hidden and read-only. Its worker inherits no provider
+write grants **disabled**, a canonical trusted `--workspace`, and a fixed
+Linux offline network namespace that starts no host proxy/bridge. Its hidden
+host root rebinds only an explicit read-only Nix tooling allowlist. Only the
+chosen workspace is writable; `protected/` is hidden and read-only. Its worker inherits no provider
 credentials or arbitrary host environment variables. A trusted controller must
 choose the workspace and command; do not offer these arguments to an untrusted
 agent as unrestricted host tool input. Run the separate Foundry external
@@ -19,7 +20,9 @@ pi-workflows host shell is isolated. The normal `/sandbox-disable`, grant
 prompts and `--no-sandbox` behavior below are still present and must not be
 used for Foundry autonomous worker commands. Never install or activate this
 fork as a claimed autonomous boundary until full end-to-end routing is proven.
-
+The host controller must spawn this runner as its own process group and reap
+the group on interruption or runner exit; the runner replaces its launcher
+shell with bubblewrap so `--die-with-parent` follows a fatal runner crash.
 
 Sandboxes pi like this:
 - read/write/edit: direct control using allow/deny lists

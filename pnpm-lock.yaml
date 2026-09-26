@@ -13,8 +13,8 @@ importers:
   .:
     dependencies:
       '@carderne/sandbox-runtime':
-        specifier: git+https://github.com/10krco/sandbox-runtime.git#6b52b52c0ae0eccc6f46f4b943f38c3647daa162
-        version: https://codeload.github.com/10krco/sandbox-runtime/tar.gz/6b52b52c0ae0eccc6f46f4b943f38c3647daa162
+        specifier: git+https://github.com/10krco/sandbox-runtime.git#312dd01a8f13d7937ba07213651bdd51d235d643
+        version: https://codeload.github.com/10krco/sandbox-runtime/tar.gz/312dd01a8f13d7937ba07213651bdd51d235d643
     devDependencies:
       '@earendil-works/pi-coding-agent':
         specifier: ^0.80.0
@@ -150,8 +150,8 @@ packages:
     resolution: {integrity: sha512-Nq8OhGWiZIZGV6hLHoyAKLLcJihP/xFeBMGJoUrxTX2psI8dCifzLhZISFb+VWS3wFMRDmCGw5R+dOySCqPLhw==}
     engines: {node: '>=6.9.0'}
 
-  '@carderne/sandbox-runtime@https://codeload.github.com/10krco/sandbox-runtime/tar.gz/6b52b52c0ae0eccc6f46f4b943f38c3647daa162':
-    resolution: {gitHosted: true, integrity: sha512-I+LyW2+kob9jGY6mSHwhKhBMYemSRqUC1OxnMWgrmSDSAQGqKZ9UmX/XOGC60xqyvBvmWIt1zO7sFmEvvxbdiA==, tarball: https://codeload.github.com/10krco/sandbox-runtime/tar.gz/6b52b52c0ae0eccc6f46f4b943f38c3647daa162}
+  '@carderne/sandbox-runtime@https://codeload.github.com/10krco/sandbox-runtime/tar.gz/312dd01a8f13d7937ba07213651bdd51d235d643':
+    resolution: {gitHosted: true, integrity: sha512-0QV1NlnS9qxyXBxbi8CuqLHbXhDMet1paGt3aNcTmIUSmrzw2cH2klCcE6K5YPL9weTMMhpFAeXz3ctWBJi8mw==, tarball: https://codeload.github.com/10krco/sandbox-runtime/tar.gz/312dd01a8f13d7937ba07213651bdd51d235d643}
     version: 0.0.72-foundry.1
     engines: {node: '>=20.11.0'}
     hasBin: true
@@ -1295,7 +1295,7 @@ snapshots:
 
   '@babel/runtime@7.29.7': {}
 
-  '@carderne/sandbox-runtime@https://codeload.github.com/10krco/sandbox-runtime/tar.gz/6b52b52c0ae0eccc6f46f4b943f38c3647daa162':
+  '@carderne/sandbox-runtime@https://codeload.github.com/10krco/sandbox-runtime/tar.gz/312dd01a8f13d7937ba07213651bdd51d235d643':
     dependencies:
       '@pondwader/socks5-server': 1.0.10
       commander: 12.1.0
