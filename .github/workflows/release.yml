@@ -7,6 +7,8 @@ on:
 
 jobs:
   create-release:
+    # This fork is distributed by reviewed Git SHA, never by a public release.
+    if: ${{ github.repository != '10krco/pi-sandbox' }}
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -17,6 +19,7 @@ jobs:
           draft: true
 
   publish-npm:
+    if: ${{ github.repository != '10krco/pi-sandbox' }}
     runs-on: ubuntu-latest
     permissions:
       id-token: write
