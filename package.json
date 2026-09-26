@@ -39,7 +39,7 @@
     "ci:test": "pnpm test"
   },
   "dependencies": {
-    "@carderne/sandbox-runtime": "git+https://github.com/10krco/sandbox-runtime.git#096a6824ced2b38590a963ff8438031af442361b"
+    "@carderne/sandbox-runtime": "git+https://github.com/10krco/sandbox-runtime.git#08f8c82baedb4a6e3f273dc50a0a864ebbccbeec"
   },
   "peerDependencies": {
     "@earendil-works/pi-coding-agent": "^0.80.0",
