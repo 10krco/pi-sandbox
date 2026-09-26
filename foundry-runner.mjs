@@ -34,6 +34,7 @@ async function main() {
     await manager.initialize({
       network: { allowedDomains: [], deniedDomains: ['*'], strictAllowlist: true },
       filesystem: {
+        includeDefaultWritePaths: false,
         denyRead: ['/', join(input, 'protected')],
         // Linux bwrap receives a hidden host root; only code/tooling and the
         // exact project are re-bound. No access to host HOME, /tmp siblings,
@@ -66,14 +67,16 @@ async function main() {
     const timeout = setTimeout(kill, 8000);
     process.on('SIGTERM', kill);
     process.on('SIGINT', kill);
-    const status = await new Promise((done, fail) => {
-      child.once('error', fail);
-      child.once('close', (code, signal) => done(signal ? 124 : code ?? 125));
-    });
-    clearTimeout(timeout);
-    process.off('SIGTERM', kill);
-    process.off('SIGINT', kill);
-    return status;
+    try {
+      return await new Promise((done, fail) => {
+        child.once('error', fail);
+        child.once('close', (code, signal) => done(signal ? 124 : code ?? 125));
+      });
+    } finally {
+      clearTimeout(timeout);
+      process.off('SIGTERM', kill);
+      process.off('SIGINT', kill);
+    }
   } finally {
     // An interrupted child may leave descendants; never report a clean exit
     // based on a killed supervisor without checking the external effects.

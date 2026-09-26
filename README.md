@@ -5,9 +5,10 @@ Sandbox for [pi](https://pi.dev/).
 ## 10krco Foundry experiment (Linux)
 
 `foundry-runner.mjs` is a **separate, host-invoked G0 candidate**, not the
-upstream Pi extension's default. It uses pinned `@carderne/sandbox-runtime@0.0.72`,
-a canonical trusted `--workspace`, a fixed deny-all network policy and a hidden
-host root with a read-only Nix tooling allowlist. Only the chosen workspace is
+upstream Pi extension's default. It uses an exact-commit 10krco fork of
+`@carderne/sandbox-runtime@0.0.72-foundry.1` with its upstream convenience
+write grants **disabled**, a canonical trusted `--workspace`, a fixed deny-all
+network policy and a hidden host root with a read-only Nix tooling allowlist. Only the chosen workspace is
 writable; `protected/` is hidden and read-only. Its worker inherits no provider
 credentials or arbitrary host environment variables. A trusted controller must
 choose the workspace and command; do not offer these arguments to an untrusted
