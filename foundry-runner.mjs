@@ -3,9 +3,23 @@
 // NOT a general Pi tool: only a trusted host controller may choose workspace.
 import { createSandboxManager } from '@carderne/sandbox-runtime';
 import { spawn } from 'node:child_process';
-import { lstatSync, mkdtempSync, realpathSync, rmSync, statSync } from 'node:fs';
+import { chmodSync, lstatSync, mkdtempSync, readdirSync, realpathSync, rmSync, statSync } from 'node:fs';
 import { resolve, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+
+// A worker can make its scratch subdirectories unreadable to the host user.
+// Restore access before removing them; never traverse a worker-created symlink.
+function restoreScratchDirectoryModes(root) {
+  const directories = [root];
+  while (directories.length > 0) {
+    const directory = directories.pop();
+    if (!lstatSync(directory).isDirectory()) continue;
+    chmodSync(directory, 0o700);
+    for (const entry of readdirSync(directory, { withFileTypes: true })) {
+      if (entry.isDirectory()) directories.push(join(directory, entry.name));
+    }
+  }
+}
 
 function argument(name) {
   const i = process.argv.indexOf(name);
@@ -104,7 +118,11 @@ async function main() {
       if (wrapped) manager?.cleanupAfterCommand();
       if (manager) await manager.reset();
     } finally {
-      rmSync(scratch, { recursive: true, force: true });
+      try {
+        restoreScratchDirectoryModes(scratch);
+      } finally {
+        rmSync(scratch, { recursive: true, force: true });
+      }
     }
   }
 }
