@@ -35,6 +35,10 @@ async function main() {
     // processes will later load or the host's Git control plane. A developer
     // may still edit these paths outside the untrusted worker boundary.
     const trustedProjectPaths = ['protected', '.pi', '.git', '.github'].map(name => join(input, name));
+    // A model-driven command may USE installed dependencies but cannot alter
+    // the verifier/test runner that trusted host actions will load later.
+    // Preserve that read/write distinction: denyRead would break normal builds.
+    const readonlyToolchain = join(input, 'node_modules');
     await manager.initialize({
       network: { offline: true, allowedDomains: [], deniedDomains: ['*'], strictAllowlist: true },
       filesystem: {
@@ -47,7 +51,7 @@ async function main() {
                     '/nix/store', '/run/current-system/sw', '/etc/ssl',
                     '/etc/ld.so.cache'],
         allowWrite: [input],
-        denyWrite: trustedProjectPaths,
+        denyWrite: [...trustedProjectPaths, readonlyToolchain],
       },
       enableWeakerNestedSandbox: false,
       allowAllUnixSockets: false,
