@@ -25,6 +25,13 @@ jobs:
       - run: pnpm run ci:fmt
       - run: pnpm run ci:lint
       - run: pnpm run ci:check
+      - name: Prepare Linux namespace prerequisites for fixed-runner test
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq --no-install-recommends bubblewrap libseccomp-dev gcc ripgrep
+          sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0 || true
+          sudo sysctl -w kernel.unprivileged_userns_clone=1 || true
+          bwrap --ro-bind / / --unshare-net true
       - run: pnpm run ci:test
 
   build:

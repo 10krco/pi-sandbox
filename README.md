@@ -12,8 +12,12 @@ Linux offline network namespace that starts no host proxy/bridge. Its hidden
 host root rebinds only an explicit read-only Nix tooling allowlist. Only the
 chosen workspace is writable except `protected/`, `.pi/`, `.git/` and
 `.github/`, which are hidden and read-only to stop untrusted commands from
-rewriting host-trusted workflow definitions, repository control or CI. Its
-worker inherits no provider credentials or arbitrary host environment variables. A trusted controller must
+rewriting host-trusted workflow definitions, repository control or CI.
+`node_modules/` remains **readable** for project commands but is read-only:
+the worker cannot rewrite the Node test toolchain that a later verifier loads.
+Other project-owned test/dependency paths need their own provenance checks;
+this is not a universal test-isolation guarantee. The worker inherits no
+provider credentials or arbitrary host environment variables. A trusted controller must
 choose the workspace and command; do not offer these arguments to an untrusted
 agent as unrestricted host tool input. Run the separate Foundry external
 observer against this entry point before treating it as safe. This initial
