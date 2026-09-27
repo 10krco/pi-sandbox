@@ -16,8 +16,7 @@ rewriting host-trusted workflow definitions, repository control or CI.
 `node_modules/` remains **readable** for project commands but is read-only:
 the worker cannot rewrite the Node test toolchain that a later verifier loads.
 Other project-owned test/dependency paths need their own provenance checks;
-this is not a universal test-isolation guarantee. The worker inherits no
-provider credentials or arbitrary host environment variables. A trusted controller must
+this is not a universal test-isolation guarantee. The worker inherits no provider credentials or arbitrary host environment variables. Its trusted runner grants one private, per-command `/tmp/foundry-worker-*` scratch outside the candidate so worker-invoked Node/npm tests cannot strand compile caches or test fixtures as unapproved project files; `TMPDIR`, Node compile, npm and XDG cache locations point there. Other `/tmp` siblings stay inaccessible, and normal/failed command exits remove the scratch. A fatal host kill can still leave an owner-only scratch requiring external cleanup, not evidence of a passing candidate. A trusted controller must
 choose the workspace and command; do not offer these arguments to an untrusted
 agent as unrestricted host tool input. Run the separate Foundry external
 observer against this entry point before treating it as safe. This initial

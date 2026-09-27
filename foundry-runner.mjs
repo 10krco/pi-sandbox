@@ -3,9 +3,23 @@
 // NOT a general Pi tool: only a trusted host controller may choose workspace.
 import { createSandboxManager } from '@carderne/sandbox-runtime';
 import { spawn } from 'node:child_process';
-import { lstatSync, realpathSync, statSync } from 'node:fs';
+import { chmodSync, lstatSync, mkdtempSync, readdirSync, realpathSync, rmSync, statSync } from 'node:fs';
 import { resolve, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+
+// A worker can make its scratch subdirectories unreadable to the host user.
+// Restore access before removing them; never traverse a worker-created symlink.
+function restoreScratchDirectoryModes(root) {
+  const directories = [root];
+  while (directories.length > 0) {
+    const directory = directories.pop();
+    if (!lstatSync(directory).isDirectory()) continue;
+    chmodSync(directory, 0o700);
+    for (const entry of readdirSync(directory, { withFileTypes: true })) {
+      if (entry.isDirectory()) directories.push(join(directory, entry.name));
+    }
+  }
+}
 
 function argument(name) {
   const i = process.argv.indexOf(name);
@@ -24,10 +38,19 @@ async function main() {
   }
   const command = argument('--command');
   if (!command) throw Error('empty command');
-  const manager = createSandboxManager();
+  // A worker may invoke an ordinary test command while exploring a change.
+  // TMPDIR=workspace would silently turn Node/npm caches and test fixtures into
+  // out-of-plan candidate files. Allocate one narrow owner-only scratch OUTSIDE
+  // the project, grant only that scratch to the sandbox, and always clean it.
+  if (realpathSync('/tmp') !== '/tmp' || !statSync('/tmp').isDirectory()) {
+    throw Error('Foundry worker requires canonical /tmp for isolated scratch');
+  }
+  const scratch = mkdtempSync('/tmp/foundry-worker-');
+  let manager;
   let child;
   let wrapped = false;
   try {
+    manager = createSandboxManager();
     // Explicitly ignore all user/project sandbox.json grants and toggles.
     // This policy is host-authored and must be bound to the chosen workspace.
     const seccompDir = fileURLToPath(new URL('../vendor/seccomp', import.meta.resolve('@carderne/sandbox-runtime')));
@@ -45,12 +68,13 @@ async function main() {
         includeDefaultWritePaths: false,
         denyRead: ['/', ...trustedProjectPaths],
         // Linux bwrap receives a hidden host root; only code/tooling and the
-        // exact project are re-bound. No access to host HOME, /tmp siblings,
-        // /var or service sockets. /nix/store is read-only NixOS tooling.
-        allowRead: [input, seccompDir, '/bin', '/usr', '/lib', '/lib64',
+        // exact project and one throwaway scratch are re-bound. No access to
+        // host HOME, other /tmp siblings, /var or service sockets. /nix/store
+        // is read-only NixOS tooling.
+        allowRead: [input, scratch, seccompDir, '/bin', '/usr', '/lib', '/lib64',
                     '/nix/store', '/run/current-system/sw', '/etc/ssl',
                     '/etc/ld.so.cache'],
-        allowWrite: [input],
+        allowWrite: [input, scratch],
         denyWrite: [...trustedProjectPaths, readonlyToolchain],
       },
       enableWeakerNestedSandbox: false,
@@ -66,7 +90,9 @@ async function main() {
     child = spawn(shell, ['-c', `exec ${sandboxed}`], {
       cwd: input,
       env: { PATH: process.env.PATH ?? '/usr/bin:/bin', HOME: '/nonexistent',
-             TMPDIR: input, LC_ALL: 'C', TERM: 'dumb' },
+             TMPDIR: scratch, NODE_COMPILE_CACHE: join(scratch, 'node-compile-cache'),
+             npm_config_cache: join(scratch, 'npm-cache'),
+             XDG_CACHE_HOME: join(scratch, 'cache'), LC_ALL: 'C', TERM: 'dumb' },
       detached: false,
       stdio: 'inherit',
     });
@@ -88,8 +114,16 @@ async function main() {
     // An interrupted child may leave descendants; never report a clean exit
     // based on a killed supervisor without checking the external effects.
     child?.kill('SIGKILL');
-    if (wrapped) manager.cleanupAfterCommand();
-    await manager.reset();
+    try {
+      if (wrapped) manager?.cleanupAfterCommand();
+      if (manager) await manager.reset();
+    } finally {
+      try {
+        restoreScratchDirectoryModes(scratch);
+      } finally {
+        rmSync(scratch, { recursive: true, force: true });
+      }
+    }
   }
 }
 
