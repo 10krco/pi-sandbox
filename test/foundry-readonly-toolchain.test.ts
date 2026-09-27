@@ -1,5 +1,5 @@
 import { spawnSync } from "node:child_process";
-import { mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import test from "node:test";
@@ -39,6 +39,21 @@ test("the fixed isolated worker may read toolchain but may not edit it or create
     const allowed = execute("printf PROJECT_EDIT_OK > allowed.txt");
     assert.equal(allowed.status, 0, allowed.stderr);
     assert.equal(readFileSync(join(project, "allowed.txt"), "utf8"), "PROJECT_EDIT_OK");
+  } finally {
+    rmSync(project, { recursive: true, force: true });
+  }
+});
+
+test("a missing dependency directory cannot be created by the worker", () => {
+  const project = mkdtempSync(join(tmpdir(), "foundry-toolchain-absent-"));
+  try {
+    const result = spawnSync(
+      process.execPath,
+      [runner, "--workspace", resolve(project), "--command", "mkdir -p node_modules/evil-package"],
+      { cwd: project, encoding: "utf8", timeout: 18_000, maxBuffer: 100_000 },
+    );
+    assert.notEqual(result.status, 0);
+    assert.equal(existsSync(join(project, "node_modules")), false);
   } finally {
     rmSync(project, { recursive: true, force: true });
   }
